@@ -21,7 +21,7 @@
 </style>
 <body>
 
-  <div></div>
+  <div>Hello!</div>
 
 <script src='//d3js.org/d3.v3.min.js'></script>
 <script src='http://d3js.org/queue.v1.min.js'></script>
@@ -29,8 +29,6 @@
 <script>
 
 var libraryCodes = ['AA','AB','BR','BK','BD','DE','DS','FE','MK','HB','HN','LV','MA','NK','SL','SV','WB','WS','YK'];
-
-var collection = []
 
 queue().defer(d3.json, 'data/snapshots.json').awaitAll(prepped)
 
@@ -74,14 +72,14 @@ function draw(data) {
     for (var j = 0; j < s.length; j++) {
       displacement[i].push([]);
       for (var k = 0; k < s[j].length; k++) {
-        var value = (((bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k]) / bookTotals[i]['inSystem'] - s[j][k]) / ( bookTotals[i]['ownedByLibrary'][k])) - (((bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k]) / bookTotals[i]['inSystem'] - s[j][k]) / (bookTotals[i]['inLibrary'][j]));
+        var value = Math.round((bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k]) / bookTotals[i]['inSystem'] - s[j][k])
         displacement[i][j].push(value);
       }
     }
   })
   console.log(displacement);
 
-  var color = d3.scale.linear().domain([-0.2, -0.05, -0.01, 0, 0.01, 0.05, 0.2]).range(['#762a83','#af8dc3','#e7d4e8','#f7f7f7','#d9f0d3','#7fbf7b','#1b7837']).interpolate(d3.interpolateHcl)
+  var color = d3.scale.linear().domain([-50000, -10000, -10, 0, 200, 400, 800, 1600, 3200, 6400, 12800, 25600]).range(['#762a83','#af8dc3','#e7d4e8','#ffffd9','#edf8b1','#c7e9b4','#7fcdbb','#41b6c4','#1d91c0','#225ea8','#253494','#081d58']).interpolate(d3.interpolateLab)
 
   var cellSize = 12,
       margin = 20,
@@ -125,7 +123,7 @@ function draw(data) {
     .attr('transform', function(d) { return 'rotate(-90)'; })
     .text(function(d) { return d; });
 
-  library.selectAll('g')
+  var squares = library.selectAll('g')
     .data(function(d) { return d; })
    .enter().append('rect')
     .attr('class', 'cell')
@@ -133,7 +131,7 @@ function draw(data) {
     .attr('height', cellSize)
     .attr('x', function(d,i) { return i * cellSize; })
     .style('fill', function(d) { return color(d); })
-    .on('click', function(d,i) { console.log(d,i); collection.push(d) });
+    .on('mouseover', function(d,i) { console.log(d); });
 
   // library.selectAll('g')
   //   .data(function(d) { return d; })
