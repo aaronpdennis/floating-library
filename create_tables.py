@@ -11,7 +11,7 @@ import os
 processed_dates = []
 for file in os.listdir('data'):
     if file.endswith('_displacement.json'):
-        processed_dates.append(file[0:9])
+        processed_dates.append(file[0:8])
 
 files = []
 for file in os.listdir('excel-spreadsheets'):
@@ -158,5 +158,20 @@ def process_snapshot(filename):
 
     print('Processed ' + str(processed) + ' out of ' + str(total) + ' books. ' + "%.2f" % (float(processed)/float(total)*float(100)) + '%\n')
 
+
+if len(files) == 0:
+    print('\nAll up to date! There are no new snapshots in the excel-spreadsheets directory.\n')
+
 for x in files:
     process_snapshot(x)
+
+
+# take count of all the processed dates
+processed_dates = []
+for file in os.listdir('data'):
+    if file.endswith('_displacement.json'):
+        processed_dates.append(file[0:8])
+
+# write data
+with open('data/snapshots.json', 'w') as snapshots_outfile:
+    json.dump(processed_dates, snapshots_outfile)

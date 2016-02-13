@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<meta charset='utf-8'>
+<head>
+  <title>Floating Library</title>
+</head>
+<style>
+  svg {
+    margin: 0.5em;
+  }
+  .label {
+    font-family: 'Roboto', arial, sans-serif;;
+    font-size: 10px;
+    dominant-baseline: middle;
+    fill: #aaa;
+  }
+  .cell {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 0.5;
+  }
+</style>
+<body>
+
+  <div></div>
+
+<script src='//d3js.org/d3.v3.min.js'></script>
+<script src='http://d3js.org/queue.v1.min.js'></script>
+
+<script>
+
+var libraryCodes = ['AA','AB','BR','BK','BD','DE','DS','FE','MK','HB','HN','LV','MA','NK','SL','SV','WB','WS','YK'];
+
+var collection = []
+
+queue().defer(d3.json, 'data/snapshots.json').awaitAll(prepped)
+
+function prepped(error, results) {
+  if (error) throw error;
+  var waiting = queue()
+  results[0].map(function(d) {
+    waiting.defer(d3.json, 'data/' + d + '_displacement.json');
+  });
+  waiting.awaitAll(ready)
+}
+
+function ready(error, data) {
+  if (error) throw error;
+  draw(data);
+}
+
+function draw(data) {
+
+  console.log(data);
+
+  var bookTotals = [];
+
+  data.map(function(s,i) {
+    var booksInLibrary = s.map(function(d) { return d3.sum(d); })
+    var booksOwnedByLibrary = [];
+    for (var i = 0; i < s.length; i++) {
+      var counts = [];
+      for (var j = 0; j < s.length; j++) {
+        counts.push(s[j][i]);
+      }
+      booksOwnedByLibrary.push(d3.sum(counts));
+    }
+    var booksInSystem = d3.sum(booksInLibrary);
+    bookTotals.push({ 'inLibrary': booksInLibrary, 'ownedByLibrary': booksOwnedByLibrary, 'inSystem': booksInSystem })
+  });
+
+  displacement = [];
+  data.map(function(s,i) {
+    displacement.push([]);
+    for (var j = 0; j < s.length; j++) {
+      displacement[i].push([]);
+      for (var k = 0; k < s[j].length; k++) {
+        var value = (((bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k]) / bookTotals[i]['inSystem'] - s[j][k]) / ( bookTotals[i]['ownedByLibrary'][k])) - (((bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k]) / bookTotals[i]['inSystem'] - s[j][k]) / (bookTotals[i]['inLibrary'][j]));
+        displacement[i][j].push(value);
+      }
+    }
+  })
+  console.log(displacement);
+
+  var color = d3.scale.linear().domain([-0.2, -0.05, -0.01, 0, 0.01, 0.05, 0.2]).range(['#762a83','#af8dc3','#e7d4e8','#f7f7f7','#d9f0d3','#7fbf7b','#1b7837']).interpolate(d3.interpolateHcl)
+
+  var cellSize = 12,
+      margin = 20,
+      libraries = data[0].length;
+
+  var width = cellSize * libraries + margin,
+      height = width;
+
+  var svg = d3.select('body').selectAll('svg')
+    .data(displacement)
+   .enter().append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('class', 'snapshot')
+   .append('g')
+    .attr('transform', 'translate(' + 0 + ',' + 0 + ')');
+
+  var library = svg.selectAll('.snapshot')
+    .data(function(d) { return d; })
+   .enter().append('g')
+    .attr('width', width)
+    .attr('height', cellSize)
+    .attr('transform', function(d,i) { return 'translate(' + margin + ',' + (cellSize * i + margin) + ')' });
+
+  var CL_labels = svg.selectAll('.snapshot')
+    .data(libraryCodes)
+   .enter().append('text')
+    .attr('class', 'label')
+    .attr('text-anchor', 'end')
+    .attr('x', margin - 2)
+    .attr('y', function(d,i) { return cellSize * i + margin + cellSize/2 + 1; })
+    .text(function(d) { return d; });
+
+  var HL_labels = svg.selectAll('.snapshot')
+    .data(libraryCodes)
+   .enter().append('text')
+    .attr('class', 'label')
+    .attr('text-anchor', 'start')
+    .attr('x', 0 - margin + 2)
+    .attr('y', function(d,i) { return cellSize * i + margin + cellSize/2 + 1; })
+    .attr('transform', function(d) { return 'rotate(-90)'; })
+    .text(function(d) { return d; });
+
+  library.selectAll('g')
+    .data(function(d) { return d; })
+   .enter().append('rect')
+    .attr('class', 'cell')
+    .attr('width', cellSize)
+    .attr('height', cellSize)
+    .attr('x', function(d,i) { return i * cellSize; })
+    .style('fill', function(d) { return color(d); })
+    .on('click', function(d,i) { console.log(d,i); collection.push(d) });
+
+  // library.selectAll('g')
+  //   .data(function(d) { return d; })
+  //  .enter().append('text')
+  //   .attr('x', margin/3)
+  //   .attr('y', function(d,i) { return cellSize * i; })
+  //   .text(function(d) { return d; })
+
+}
+
+</script>
+</body>
