@@ -3,6 +3,7 @@
 <head>
   <title>Floating Library</title>
   <script src='http://code.jquery.com/jquery-2.2.1.min.js'></script>
+  <script src='./javascript/regression.js'></script>
 </head>
 <style>
   #lineGraph {
@@ -24,7 +25,8 @@
     font-family: 'Roboto', arial, sans-serif;;
     font-size: 10px;
     dominant-baseline: middle;
-    fill: #aaa;
+    fill: #000;
+    opacity: 0.5;
   }
   .cell {
     fill: #ccc;
@@ -45,23 +47,36 @@
     fill-opacity: 0;
     stroke-width: 1;
     stroke: #602391;
+    stroke-opacity: 0.4;
+  }
+  .regline {
+    fill-opacity: 0;
+    stroke-width: 2;
+    stroke: red;
     stroke-opacity: 0.6;
+    stroke-dasharray: 10,10;
   }
 </style>
 <body>
 
-  <div id="lineGraph">
+  <div id="lineGraphContainer">
     <div id="currentCheckboxes" class='selectorList'>
       <p class='allLibrariesSelector checkboxContainer'>
-        <input id='currentAllLibrariesSelector' type='button' value="Select All">
+        <input id='currentAllLibrariesSelector' type='button' value="All">
       </p>
     </div>
     <div id="homeCheckboxes" class='selectorList'>
       <p class='allLibrariesSelector checkboxContainer'>
-        <input type='button' id='homeAllLibrariesSelector' value="Select All">
+        <input type='button' id='homeAllLibrariesSelector' value="All">
       </p>
     </div>
+    <p>Compare the distribution of floating books from home libraries to current locations.</p>
+    <div id="lineGraph">
+    </div>
+    <p id="lineGraphCaption1" class="caption"></p>
+    <p id="lineGraphCaption2" class="caption"></p>
   </div>
+  <br>
   <div id="matrices"></div>
 
 <script src='//d3js.org/d3.v3.min.js'></script>
@@ -74,6 +89,7 @@ var snapshots;
 
 queue().defer(d3.json, 'data/snapshots.json').awaitAll(prepped)
 
+// load each snapshot's data
 function prepped(error, results) {
   if (error) throw error;
   snapshots = results;
@@ -84,12 +100,13 @@ function prepped(error, results) {
   waiting.awaitAll(ready)
 }
 
+// all ready to go
 function ready(error, data) {
   if (error) throw error;
-  draw(data);
+  drawDisplacementGraphics(data);
 }
 
-function draw(data) {
+function drawDisplacementGraphics(data) {
 
   var bookTotals = [];
 
@@ -183,21 +200,19 @@ function draw(data) {
   ////////////////
   // Line Graph //
   ////////////////
-//*
 
+  // formatting & setup
   var chartMargin = { top: 20, right: 80, bottom: 60, left: 50 },
       chartWidth = 800 - chartMargin.left - chartMargin.right,
       chartHeight = 500 - chartMargin.top - chartMargin.bottom;
 
-  var parseDate = d3.time.format('%Y%m%d').parse;
-
-  var randomColor = d3.scale.linear().domain([0,1]).range(['#2166ac', '#1b7837']).interpolate(d3.interpolateLab)
+  var dateFormat = d3.time.format('%Y%m%d');
 
   var chartX = d3.time.scale().range([0, chartWidth]),
       chartY = d3.scale.pow().exponent(1).range([chartHeight, 0]);
 
   var chartLine = d3.svg.line().interpolate('basis')
-      .x(function(d) { return chartX(parseDate(d.date)); })
+      .x(function(d) { return chartX(dateFormat.parse(d.date)); })
       .y(function(d) { return chartY(d.ratio); });
 
   var chart = d3.select('#lineGraph').append('svg')
@@ -205,6 +220,9 @@ function draw(data) {
       .attr("height", chartHeight + chartMargin.top + chartMargin.bottom)
     .append("g")
       .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
+
+
+  // processing data
 
   // pass in two arrays listing the libraries of interest, current and home
   function constructChartData(array) {
@@ -230,6 +248,7 @@ function draw(data) {
     return lineData;
   }
 
+  // build checkboxes
   d3.select('#homeCheckboxes').selectAll('.checkbox')
     .data(libraryCodes)
    .enter().append('p')
@@ -242,16 +261,14 @@ function draw(data) {
     .attr('class', 'checkboxContainer')
     .html(function(d) { return '<input type="checkbox" value="' + d + '" id="' + d + 'currentcheckbox">' + d; });
 
-  chartX.domain(d3.extent(snapshots[0], function(d) { return parseDate(d); }));
+  chartX.domain(d3.extent(snapshots[0], function(d) { return dateFormat.parse(d); }));
 
   var chartXAxis = d3.svg.axis().scale(chartX).orient('bottom'),
       chartYAxis = d3.svg.axis().scale(chartY).orient('left').ticks(5).tickFormat(d3.format('d'));
 
-  chartY.domain([
-    1,
-    150
-  ]);
+  chartY.domain([1,150]);
 
+  // x axis
   chart.append("g")
        .attr("class", "x axis")
        .attr("transform", "translate(0," + chartHeight + ")")
@@ -262,6 +279,7 @@ function draw(data) {
       .attr("transform", "rotate(-45)")
       .style("text-anchor", "end");
 
+  // y axis
   chart.append("g")
      .attr("class", "y axis")
      .call(chartYAxis)
@@ -272,16 +290,89 @@ function draw(data) {
      .style("text-anchor", "end")
      .text("Ratio to Equilibrium");
 
+  // draw line chart
+  function drawChart(data) {
+
+    chart.selectAll('.line').remove();
+    chart.selectAll('.label').remove();
+    chart.selectAll('.regline').remove();
+    d3.selectAll('.caption').text('');
+
+    if(data[0].length !== 0 && data[1].length !== 0) {
+
+      var chartData = constructChartData(data);
+
+      var values = chartData.map(function(pair) {
+        return pair.history.map(function(d) {
+          var time = dateFormat.parse(d.date).getTime() - dateFormat.parse(snapshots[0][0]).getTime();
+          return [time, d.ratio];
+        });
+      });
+      var emptyAvgValues = [];
+      for (var i = 0; i < values[0].length; i++) {
+        emptyAvgValues.push([[],[]])
+      }
+      values.map(function(v) {
+        for (var i = 0; i < values[0].length; i++) {
+          emptyAvgValues[i][0].push(v[i][0]);
+          emptyAvgValues[i][1].push(v[i][1]);
+        }
+      });
+      var avgValues = emptyAvgValues.map(function(d) {
+        return d.map(function(p) {
+          return d3.mean(p);
+        })
+      });
+
+      var reg = regression('exponential', avgValues)
+
+      var regPoints = reg.points.map(function(d) {
+        return { 'ratio': d[1], 'date': dateFormat(new Date(dateFormat.parse(snapshots[0][0]).getTime() + d[0]))}
+      });
+
+      var caption1 = '';
+      var halfLife = (Math.round((Math.log(0.5)/reg.equation[1]) / (1000 * 60 * 60 * 24 * 365.25) * 100) / 100);
+      caption1 += comparisons[0].join(', ') + ' books in ' + comparisons[1].join(', ') + ' become half as understocked every ' + halfLife + ' years.';
+      var caption2 = '';
+      caption2 += 'After 5 years, these books will be ' + Math.round((100 * (1 - (1 * Math.pow(0.5, (5 / halfLife))))) * 100) / 100 + '% distributed.';
+      d3.select('#lineGraphCaption1').text(caption1);
+      d3.select('#lineGraphCaption2').text(caption2);
+
+      var chartPaths = chart.selectAll('.line')
+          .data(chartData)
+        .enter().append('path')
+          .datum(function(d) { return d.history; })
+          .attr('class', 'line')
+          .attr('d', chartLine);
+
+      chart.append('path')
+        .datum(regPoints)
+        .attr('class', 'regline')
+        .attr('d', chartLine)
+
+      var chartText = chart.selectAll('.label')
+          .data(chartData)
+        .enter().append('text')
+          .attr('class', 'label')
+          .attr('x', chartWidth + 2)
+          .attr('y', function(d) { return chartY(d.history[d.history.length - 1].ratio); })
+          .text(function(d) { return d.home + ' in ' + d.current; });
+
+    }
+  }
+
+  /////////////////////////////////////
+  // Libraries comparisons selectors //
+  /////////////////////////////////////
+
   var comparisons = [[],[]];
 
   d3.select('#currentAllLibrariesSelector').on('click', function() {
     if (comparisons[0].length === libraryCodes.length) {
       d3.select('#currentCheckboxes').selectAll('input').property('checked', false);
-      this.value = 'Select All';
       comparisons[0] = [];
     } else {
       d3.select('#currentCheckboxes').selectAll('input').property('checked', true);
-      this.value = 'Deselect All';
       comparisons[0] = libraryCodes.slice();
     }
     drawChart(comparisons)
@@ -295,11 +386,9 @@ function draw(data) {
   d3.select('#homeAllLibrariesSelector').on('click', function() {
     if (comparisons[1].length === libraryCodes.length) {
       d3.select('#homeCheckboxes').selectAll('input').property('checked', false);
-      this.value = 'Select All';
       comparisons[1] = [];
     } else {
       d3.select('#homeCheckboxes').selectAll('input').property('checked', true);
-      this.value = 'Deselect All';
       comparisons[1] = libraryCodes.slice();
     }
     drawChart(comparisons)
@@ -310,34 +399,6 @@ function draw(data) {
     drawChart(comparisons);
   });
 
-  function drawChart(data) {
-
-    chart.selectAll('.line').remove();
-    chart.selectAll('.label').remove();
-
-    if(data[0].length !== 0 && data[1].length !== 0) {
-
-      var chartData = constructChartData(data);
-
-      var chartPaths = chart.selectAll('.line')
-          .data(chartData)
-        .enter().append('path')
-          .datum(function(d) { return d.history; })
-          .attr('class', 'line')
-          .attr('d', chartLine);
-
-      var chartText = chart.selectAll('.label')
-          .data(chartData)
-        .enter().append('text')
-          .attr('class', 'label')
-          .attr('x', chartWidth + 2)
-          .attr('y', function(d) { return chartY(d.history[d.history.length - 1].ratio); })
-          .text(function(d) { return d.home + ' in ' + d.current; });
-
-    }
-  }
-
-//*/
 }
 
 </script>
