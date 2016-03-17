@@ -115,13 +115,28 @@ function drawRecencyGraphics(data) {
     .attr('height', 400);
 
   function drawSnapshotRecency(snapIndex) {
+
+    var collectionTotals = recency[snapIndex].map(function(d) {
+      return d3.sum(d);
+    });
+    var systemTotal = d3.sum(collectionTotals);
+
+    console.log(collectionTotals, systemTotal);
+
+    var recencyTotals = d3.transpose(recency[snapIndex]).map(function(d) { return d3.sum(d); });
+    console.log('recencyTotals', recencyTotals);
+
+    var averageProportions = recencyTotals.map(function(d) { return d / systemTotal; });
+    console.log('avg prop', averageProportions);
+
+
     svg.selectAll('.plot').remove();
     var plot = svg.selectAll('g')
       .data(recency[snapIndex])
      .enter().append('g')
       .attr('class', 'plot')
       .attr('transform', function(d,i) { return 'translate(' + 900 / libraryCodes.length * i + ',0)'; })
-      .datum(function(d) { return d; });
+      .datum(function(d,i) { return d.map(function(v) { return { 'lib': i, 'amount': v }; }) });
 
     var colors = ['#ffffcc','#d9f0a3','#addd8e','#78c679','#41ab5d','#238443','#005a32'];
     plot.selectAll('.bar')
@@ -130,10 +145,17 @@ function drawRecencyGraphics(data) {
       .attr('class', 'bar')
       .attr('x', function(d,i) { return (900 / libraryCodes.length / categories.length) * i; })
       .attr('width', (900 / libraryCodes.length / categories.length - 2))
-      .attr('y', function(d) { return 400 - d / 100; })
-      .attr('height', function(d) { return d / 100; })
+      .attr('y', function(d,i) {
+        var dy = 200 - ((d.amount / collectionTotals[d.lib]) / averageProportions[i] - 1) * 50;
+        if (dy > 200) dy = 200;
+        return dy;
+      })
+      .attr('height', function(d,i) { return Math.abs((d.amount / collectionTotals[d.lib]) / averageProportions[i] - 1) * 50; })
       .style('fill', function(d,i) { return colors[colors.length - i - 1] })
   }
+
+  drawSnapshotRecency(0);
+  d3.select('#recencyGraphics').append('p').text(categories.join(', '));
 
   d3.select('#recencySlider').on('change', function() {
     drawSnapshotRecency(this.value)
