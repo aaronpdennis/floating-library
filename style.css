@@ -1,0 +1,64 @@
+#lineGraphContainer {
+  min-height: 600px;
+  margin-bottom: 50px;
+  float: left;
+}
+#lineGraph {
+  float: left;
+}
+.selectorList {
+  float: left;
+}
+.checkboxContainer {
+  margin: 2px;
+}
+.allLibrariesSelector {
+  margin-bottom: 10px;
+}
+svg {
+  margin: 0.5em;
+}
+.label {
+  font-family: 'Roboto', arial, sans-serif;;
+  font-size: 10px;
+  dominant-baseline: middle;
+  fill: #000;
+  opacity: 0.5;
+}
+.cell {
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: 0.5;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.axis text {
+  font: 10px sans-serif;
+}
+.line {
+  fill-opacity: 0;
+  stroke-width: 1;
+  stroke: #602391;
+  stroke-opacity: 0.4;
+}
+.regline {
+  fill-opacity: 0;
+  stroke-width: 2;
+  stroke: red;
+  stroke-opacity: 0.6;
+  stroke-dasharray: 10,10;
+}
+.caption {
+  text-align: center;
+  width: 950px;
+  font-style: italic;
+  float: left;
+}
+
+#matrices {
+  float: left;
+}
