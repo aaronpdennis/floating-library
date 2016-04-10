@@ -18,12 +18,24 @@
 svg {
   margin: 0.5em;
 }
+
+.plot {
+  background-color: #eee;
+  border-radius: 4px;
+}
+
 .label {
   font-family: 'Roboto', arial, sans-serif;;
   font-size: 10px;
   dominant-baseline: middle;
   fill: #000;
   opacity: 0.5;
+}
+.classLabel {
+  font-size: 25px;
+}
+.dateLabel {
+  font-style: italic;
 }
 .cell {
   fill: #ccc;

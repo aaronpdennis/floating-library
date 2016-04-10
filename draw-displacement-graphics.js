@@ -134,7 +134,7 @@ function drawDisplacementGraphics(data) {
     var currentIndex = libraryCodes.indexOf(current),
         homeIndex = libraryCodes.indexOf(home);
     displacement.map(function(d,i) {
-      var record = { 'date': snapshots[0][i], 'ratio': d[currentIndex][homeIndex] }
+      var record = { 'date': snapshots[i], 'ratio': d[currentIndex][homeIndex] }
       lineData.history.push(record);
     });
     return lineData;
@@ -153,7 +153,7 @@ function drawDisplacementGraphics(data) {
     .attr('class', 'checkboxContainer')
     .html(function(d) { return '<input type="checkbox" value="' + d + '" id="' + d + 'currentcheckbox">' + d; });
 
-  chartX.domain(d3.extent(snapshots[0], function(d) { return dateFormat.parse(d); }));
+  chartX.domain(d3.extent(snapshots, function(d) { return dateFormat.parse(d); }));
 
   var chartXAxis = d3.svg.axis().scale(chartX).orient('bottom'),
       chartYAxis = d3.svg.axis().scale(chartY).orient('left').ticks(5).tickFormat(d3.format('d'));
@@ -196,7 +196,7 @@ function drawDisplacementGraphics(data) {
 
       var values = chartData.map(function(pair) {
         return pair.history.map(function(d) {
-          var time = dateFormat.parse(d.date).getTime() - dateFormat.parse(snapshots[0][0]).getTime();
+          var time = dateFormat.parse(d.date).getTime() - dateFormat.parse(snapshots[0]).getTime();
           return [time, d.ratio];
         });
       });
@@ -219,7 +219,7 @@ function drawDisplacementGraphics(data) {
       var reg = regression('exponential', avgValues)
 
       var regPoints = reg.points.map(function(d) {
-        return { 'ratio': d[1], 'date': dateFormat(new Date(dateFormat.parse(snapshots[0][0]).getTime() + d[0]))}
+        return { 'ratio': d[1], 'date': dateFormat(new Date(dateFormat.parse(snapshots[0]).getTime() + d[0]))}
       });
 
       var caption1 = '';
