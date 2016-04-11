@@ -13,9 +13,38 @@ function drawRecencyGraphics(data) {
     return libraries;
   });
 
-  var svg = d3.select('#recencyBarChart').append('svg')
-    .attr('width', 900)
-    .attr('height', 400);
+  // value = 'category count' / 'library total' - 'system category count' / 'system total'
+  var extreme = 0;
+
+  var proportionalRecency = [];
+
+  for (var s = 0; s < snapshots.length; s++) {
+    proportionalRecency.push([]);
+
+    var sExtreme = 0;
+    var scTotal = new Array(categories.length + 1).join('0').split('').map(parseFloat);
+
+    for (var l = 0; l < recency[s].length; l++) {
+      for (var c =0; c < categories.length; c++) {
+        scTotal[c] += recency[s][l][c];
+      }
+    }
+
+    var systemTotal = d3.sum(scTotal);
+
+    for (var l = 0; l < recency[s].length; l++) {
+      proportionalRecency[s].push([]);
+      var lExtreme = 0;
+      var lTotal = d3.sum(recency[s][l]);
+      for (var c = 0; c < categories.length; c++) {
+        var value = (recency[s][l][c] / lTotal) / (scTotal[c] / d3.sum(scTotal)) - 1;
+        proportionalRecency[s][l].push(value);
+        if (Math.abs(value) > lExtreme) lExtreme = Math.abs(value);
+      }
+      if (lExtreme > sExtreme) sExtreme = lExtreme;
+    }
+    if (sExtreme > extreme) extreme = sExtreme;
+  }
 
   function drawSnapshotRecency(snapIndex) {
 
@@ -23,38 +52,100 @@ function drawRecencyGraphics(data) {
       return d3.sum(d);
     });
     var systemTotal = d3.sum(collectionTotals);
-
-
     var recencyTotals = d3.transpose(recency[snapIndex]).map(function(d) { return d3.sum(d); });
-
     var averageProportions = recencyTotals.map(function(d) { return d / systemTotal; });
 
-    svg.selectAll('.plot').remove();
-    var plot = svg.selectAll('g')
-      .data(recency[snapIndex])
-     .enter().append('g')
-      .attr('class', 'plot')
-      .attr('transform', function(d,i) { return 'translate(' + 900 / libraryCodes.length * i + ',0)'; })
-      .datum(function(d,i) { return d.map(function(v) { return { 'lib': i, 'amount': v }; }) });
+    var margin = 12;
 
-    var colors = ['#ffffcc','#d9f0a3','#addd8e','#78c679','#41ab5d','#238443','#005a32'];
-    plot.selectAll('.bar')
+    var height = 280 + 2 * margin,
+        width = 120 + 2 * margin;
+
+    var yScale = d3.scale.linear()
+      .domain([1 * extreme, -1 * extreme])
+      .range([margin, height - margin]);
+
+    var recencyColor = d3.scale.pow()
+      .domain([0,6])
+      .range(['#01665e','#8c510a'])
+      .interpolate(d3.interpolateLab)
+
+    d3.select('#recencyBarChart').selectAll('.plot').remove();
+    var rSvg = d3.select('#recencyBarChart').selectAll('.plot')
+      .data(proportionalRecency[snapIndex])
+     .enter().append('svg')
+      .attr('class', 'plot')
+      .attr('height', height)
+      .attr('width', width);
+
+    var rGroups = rSvg.selectAll('.rGroup')
       .data(function(d) { return d; })
-     .enter().append('rect')
+     .enter().append('g')
+      .attr('transform', function(d,i) { return 'translate(' + (((width - 2 * margin) / categories.length) * i + margin) + ',0)'; })
+
+    rGroups.append('rect')
       .attr('class', 'bar')
-      .attr('x', function(d,i) { return (900 / libraryCodes.length / categories.length) * i; })
-      .attr('width', (900 / libraryCodes.length / categories.length - 2))
-      .attr('y', function(d,i) {
-        var dy = 200 - ((d.amount / collectionTotals[d.lib]) / averageProportions[i] - 1) * 50;
-        if (dy > 200) dy = 200;
-        return dy;
+      .attr('width', ((width - 2 * margin) / categories.length - 2))
+      .attr('y', function(d) {
+       return d < 0 ? (height / 2) : yScale(d) - 1;
       })
-      .attr('height', function(d,i) { return Math.abs((d.amount / collectionTotals[d.lib]) / averageProportions[i] - 1) * 50; })
-      .style('fill', function(d,i) { return colors[colors.length - i - 1] })
+      .attr('height', function(d) {
+       return Math.abs((height / 2) - yScale(d)) + 1;
+      })
+      .style('fill', function(d,i) {
+       return recencyColor(i);
+      })
+      .on('click', function(d) { console.log(d); });
+
+    rSvg
+      .append('rect')
+      .attr('class', 'mean-line')
+      .attr('y', height / 2 - 1)
+      .attr('x', margin)
+      .attr('width', width - 2 * margin - 2)
+      .attr('height', 2)
+
+    rSvg
+      .append('text')
+      .attr('class', 'classLabel label')
+      .attr('x', 2 + margin)
+      .attr('y', 2 + margin)
+      .attr('alignment-baseline', 'hanging')
+      .text(function(d,i) { return libraryCodes[i]; });
+
+    rSvg
+      .append('text')
+      .attr('class', 'dateLabel label')
+      .attr('x', width - (0 + margin))
+      .attr('y', height - (0 + margin))
+      .attr('text-anchor', 'end')
+      .text(function(d,i) { return displayFormat(
+          snapFormat.parse(
+            snapshots[$('#recencySlider').val()]
+          )
+        );
+      });
+
+    rGroups
+      .append('text')
+      .attr('class', 'label')
+      //.attr('x', 2 + margin)
+      .attr('y', function(d) {
+        return height / 2;
+      })
+      .attr('x', function(d) {
+        var pad = d > 0 ? -1 * margin / 4 : margin / 4;
+        return pad;
+      })
+      .attr('text-anchor', function(d) {
+        var anchor = d < 0 ? 'start' : 'end';
+        return anchor;
+      })
+      .attr('transform', 'rotate(-90) translate(' + -1 * height / 2 +',' + -1 * height / 2.13 +')')
+      .text(function(d,i) { return categories[i].substring(0,categories[i].length - 5); });
+
   }
 
   drawSnapshotRecency(0);
-  d3.select('#recencyGraphics').append('p').text(categories.join(', '));
 
   d3.select('#recencySlider').on('change', function() {
     drawSnapshotRecency(this.value)

@@ -41,7 +41,7 @@ function drawDisplacementGraphics(data) {
       libraries = data[0].length;
 
   var width = cellSize * libraries + margin,
-      height = width;
+      height = width + 15;
 
   var svg = d3.select('#matrices').selectAll('svg')
     .data(displacement)
@@ -58,6 +58,19 @@ function drawDisplacementGraphics(data) {
     .attr('width', width)
     .attr('height', cellSize)
     .attr('transform', function(d,i) { return 'translate(' + margin + ',' + (cellSize * i + margin) + ')' });
+
+  var date_labels = svg.append('text')
+    .attr('class', 'dateLabel label')
+    .attr('x', width - (5))
+    .attr('y', height - (5))
+    .attr('text-anchor', 'end')
+    .text(function(d,i) {
+      return displayFormat(
+        snapFormat.parse(
+          snapshots[i]
+        )
+      );
+    });
 
   var CL_labels = svg.selectAll('.snapshot')
     .data(libraryCodes)
@@ -86,7 +99,6 @@ function drawDisplacementGraphics(data) {
     .attr('height', cellSize)
     .attr('x', function(d,i) { return i * cellSize; })
     .style('fill', function(d) { return color(d); });
-    //.on('mouseover', function(d,i) { console.log(d); });
 
 
   ////////////////
