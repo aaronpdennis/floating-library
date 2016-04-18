@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <meta charset='utf-8'>
 <head>
+
   <title>Floating Library</title>
-  <script src='http://code.jquery.com/jquery-2.2.1.min.js'></script>
-  <script src='./javascript/regression.js'></script>
+
+  <script src='//code.jquery.com/jquery-2.2.1.min.js'></script>
+
+  <script src='./js/regression.js'></script>
+
+
+  <script src='//d3js.org/d3.v3.min.js'></script>
+  <script src='//d3js.org/queue.v1.min.js'></script>
+
+  <link rel="stylesheet" href="./style.css" />
+
 </head>
 <body>
-
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- <div id='menu'>
-    <h2 id='displacement' class='menu-button'>Distribution</h2>
-    <h2 id='recency' class='menu-button'>Recency</h2>
-    <h2 id='callNumbers' class='menu-button'>Call Numbers</h2>
-  </div> -->
-
-  <div class='break'></div>
 
   <div id="displacementGraphics">
     <h2 class='subtitle'>Floating Library Distribution</h2>
@@ -68,20 +68,20 @@
     <div id="callNumberChart"></div>
   </div>
 
-<script src='//d3js.org/d3.v3.min.js'></script>
-<script src='http://d3js.org/queue.v1.min.js'></script>
-
 <script>
 
+// List containing each library code
 var libraryCodes = ['AA','AB','BR','BK','BD','DE','DS','FE','MK','HB','HN','LV','MA','NK','SL','SV','WB','WS','YK'];
+
+// Empty variables to contain the snapshots and LOC classifications objects
 var snapshots,classifications;
 
 </script>
 
-<!-- load view specific scripts -->
-<script src="draw-displacement-graphics.js"></script>
-<script src="draw-recency-graphics.js"></script>
-<script src="draw-call-number-graphics.js"></script>
+<!-- load view-specific scripts -->
+<script src="./js/draw-displacement-graphics.js"></script>
+<script src="./js/draw-recency-graphics.js"></script>
+<script src="./js/draw-call-number-graphics.js"></script>
 
 <script>
 
