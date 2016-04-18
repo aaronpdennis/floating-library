@@ -10,7 +10,7 @@ To use this project, [download the ZIP file](https://github.com/aaronpdennis/flo
 
 The `index.html` file is a static web page for visualizing time series patterns in the floating collection data. To display the site, this repository and all its contents should be hosted on a web server.
 
-## Updating With New Monthly Snapshots
+## Updating Monthly Snapshots
 
 The data that lives behind the website can be updated using the `update.py` Python script on Mac OS X. Follow these steps to update the website:
 
