@@ -1,4 +1,4 @@
-# Penn State Floating Library Anlaysis
+# Penn State Floating Library Analysis
 
 This repository provides a visualization of monthly data snapshots for [Penn State's floating collection library](https://www.libraries.psu.edu/psul/access/floatingcollection.html). The files contained here were created for a research assistantship during the 2016 spring semester.
 
