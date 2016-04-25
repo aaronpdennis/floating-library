@@ -75,9 +75,39 @@ function drawCallNumberGraphics(data) {
       .domain([1 * maxValue, -1 * maxValue])
       .range([margin, height - margin]);
 
+    var cnDomain = [0, maxCount / 1000, maxCount / 500, maxCount / 50, maxCount / 2, maxCount];
     var cnColor = d3.scale.linear()
-      .domain([0, maxCount / 1000, maxCount / 500, maxCount / 50, maxCount / 2, maxCount])
+      .domain(cnDomain)
       .range(['#a6bddb','#67a9cf','#3690c0','#02818a','#016450']);
+
+    // Legend
+    //d3.selectAll('.legend').remove();
+    if (d3.select('#cnLegend').empty()) {
+      var legend = d3.select('#callNumberChart').append('div')
+        .attr('id', 'cnLegend')
+        .attr('class', 'legend')
+        .style('width', '100%')
+        .style('height', '60px')
+        .style('display', 'flex')
+        .style('justify-content', 'center')
+        .style('align-items', 'center')
+        .style('margin-bottom', '20px');
+
+      legend.append('p').text('small collection').attr('class', 'label').style('padding', '5px');
+
+      legend.selectAll('.cell')
+        .data(cnDomain)
+       .enter().append('div')
+        .style('float', 'left')
+        .style('height', '20px')
+        .style('width', '20px')
+        .style('margin-right', '1px')
+        .style('background-color', function(d) {
+          return cnColor(d);
+        });
+
+      legend.append('p').text('large collection').attr('class', 'label').style('padding', '5px');
+    }
 
     d3.select('#callNumberChart').selectAll('.plot').remove();
     var cnSvg = d3.select('#callNumberChart').selectAll('.plot')

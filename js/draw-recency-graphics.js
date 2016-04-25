@@ -67,7 +67,35 @@ function drawRecencyGraphics(data) {
     var recencyColor = d3.scale.pow()
       .domain([0,6])
       .range(['#01665e','#8c510a'])
-      .interpolate(d3.interpolateLab)
+      .interpolate(d3.interpolateLab);
+
+    // Legend
+    if (d3.select('#recencyLegend').empty()) {
+      var legend = d3.select('#recencyBarChart').append('div')
+        .attr('id', 'recencyLegend')
+        .attr('class', 'legend')
+        .style('width', '100%')
+        .style('height', '60px')
+        .style('display', 'flex')
+        .style('justify-content', 'center')
+        .style('align-items', 'center')
+        .style('margin-bottom', '20px');
+
+      legend.append('p').text('newer books').attr('class', 'label').style('padding', '5px');
+
+      legend.selectAll('.cell')
+        .data(categories)
+       .enter().append('div')
+        .style('float', 'left')
+        .style('height', '20px')
+        .style('width', '20px')
+        .style('margin-right', '1px')
+        .style('background-color', function(d,i) {
+          return recencyColor(i);
+        });
+
+      legend.append('p').text('older books').attr('class', 'label').style('padding', '5px');
+    }
 
     d3.select('#recencyBarChart').selectAll('.plot').remove();
     var rSvg = d3.select('#recencyBarChart').selectAll('.plot')
