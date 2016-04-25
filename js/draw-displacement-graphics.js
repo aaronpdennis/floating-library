@@ -1,40 +1,60 @@
 function drawDisplacementGraphics(data) {
 
+  for (var s = 0; s < data.length; s++) {
+    for (var i = 0; i < data[s].length; i++) {
+      for (var j = 0; j < data[s][i].length; j++) {
+        if (data[s][i][j] === 0) {
+          data[s][i][j] += 1;
+          if (s !== 0 && s !== data.length - 1) {
+            data[s][i][j] = (data[s - 1][i][j] + data[s + 1][i][j]) / 2
+          }
+        }
+      }
+    }
+  }
+
   var bookTotals = [];
 
   data.map(function(s,i) {
-    var booksInLibrary = s.map(function(d) { return d3.sum(d); })
-    var booksOwnedByLibrary = [];
-    for (var i = 0; i < s.length; i++) {
+
+    var booksFromHomeLibrary = s.map(function(d) { return d3.sum(d); })
+
+    var booksInCurrentLibrary = [];
+    for (var i = 0; i < s.length; i++) { // for each home library i ...
       var counts = [];
-      for (var j = 0; j < s.length; j++) {
-        counts.push(s[j][i]);
+      for (var j = 0; j < s.length; j++) { // for each current library j ...
+        counts.push(s[j][i]);              // add to sum the number of books in current owned by this home
       }
-      booksOwnedByLibrary.push(d3.sum(counts));
+      // ***
+      booksInCurrentLibrary.push(d3.sum(counts));
     }
-    var booksInSystem = d3.sum(booksInLibrary);
-    bookTotals.push({ 'inLibrary': booksInLibrary, 'ownedByLibrary': booksOwnedByLibrary, 'inSystem': booksInSystem })
+    var booksInSystem = d3.sum(booksFromHomeLibrary);
+    bookTotals.push({ 'inLibrary': booksInCurrentLibrary, 'ownedByLibrary': booksFromHomeLibrary, 'inSystem': booksInSystem })
   });
 
+  // displacement will be a matrix of home X current overstocked percentages
   displacement = [];
-  data.map(function(s,i) {
-    displacement.push([]);
-    for (var j = 0; j < s.length; j++) {
-      displacement[i].push([]);
-      for (var k = 0; k < s[j].length; k++) {
-        //var value = Math.round((bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k]) / bookTotals[i]['inSystem'] - s[j][k])
-        var value = (bookTotals[i]['ownedByLibrary'][k] * bookTotals[i]['inLibrary'][j]) / (bookTotals[i]['inSystem'] * s[j][k])
+  data.map(function(s,i) { // for each snapshot s,i ...
+    displacement.push([]); // add empty matrix container
+    for (var j = 0; j < s.length; j++) { // for each home library j ...
+      displacement[i].push([]);          // add empty row
+      for (var k = 0; k < s[j].length; k++) { // for each current library k ...
+        var value =
+        (bookTotals[i]['ownedByLibrary'][j] * bookTotals[i]['inLibrary'][k])
+        /
+        (bookTotals[i]['inSystem'] * s[j][k]); // overstocked value
         displacement[i][j].push(value);
       }
     }
-  })
-
-  var color = d3.scale.linear().domain([0, 0.1, 0.5, 1, 5, 10, 25, 50, 75, 100, 150, 250, 2500]).range(['#762a83','#af8dc3','#e7d4e8','#ffffd9','#edf8b1','#c7e9b4','#7fcdbb','#41b6c4','#1d91c0','#225ea8','#253494','#081d58']).interpolate(d3.interpolateLab)
+  });
 
 
   //////////////
   // Matrices //
   //////////////
+
+  var domainValues = [0, 0.1, 0.5, 1, 5, 10, 25, 50, 75, 100, 150, 250, 2500];
+  var color = d3.scale.linear().domain(domainValues).range(['#762a83','#af8dc3','#e7d4e8','#ffffd9','#edf8b1','#c7e9b4','#7fcdbb','#41b6c4','#1d91c0','#225ea8','#253494','#081d58']).interpolate(d3.interpolateLab)
 
   var cellSize = 12,
       margin = 20,
@@ -42,6 +62,30 @@ function drawDisplacementGraphics(data) {
 
   var width = cellSize * libraries + margin,
       height = width + 15;
+
+  // Legend
+  var legend = d3.select('#matrices').append('div')
+    .attr('id', 'matrixLegend')
+    .style('width', '100%')
+    .style('height', (cellSize * 3) + 'px')
+    .style('display', 'flex')
+    .style('justify-content', 'center')
+    .style('align-items', 'center')
+    .style('margin-bottom', '20px');
+
+  legend.append('p').text('understocked').attr('class', 'label').style('padding', '5px');
+
+  legend.selectAll('.cell')
+    .data(domainValues.reverse())
+   .enter().append('div')
+    .style('float', 'left')
+    .style('height', cellSize + 'px')
+    .style('width', cellSize + 'px')
+    .style('background-color', function(d) {
+      return color(d);
+    });
+
+  legend.append('p').text('overstocked').attr('class', 'label').style('padding', '5px');
 
   var svg = d3.select('#matrices').selectAll('svg')
     .data(displacement)
@@ -54,10 +98,19 @@ function drawDisplacementGraphics(data) {
 
   var library = svg.selectAll('.snapshot')
     .data(function(d) { return d; })
-   .enter().append('g')
+   .enter().append('g') // groups for each home library
     .attr('width', width)
     .attr('height', cellSize)
     .attr('transform', function(d,i) { return 'translate(' + margin + ',' + (cellSize * i + margin) + ')' });
+
+  var squares = library.selectAll('g')
+    .data(function(d) { return d; })
+   .enter().append('rect') // square for each current library across
+    .attr('class', 'cell')
+    .attr('width', cellSize)
+    .attr('height', cellSize)
+    .attr('x', function(d,i) { return i * cellSize; })
+    .style('fill', function(d) { return color(d); });
 
   var date_labels = svg.append('text')
     .attr('class', 'dateLabel label')
@@ -91,15 +144,6 @@ function drawDisplacementGraphics(data) {
     .attr('transform', function(d) { return 'rotate(-90)'; })
     .text(function(d) { return d; });
 
-  var squares = library.selectAll('g')
-    .data(function(d) { return d; })
-   .enter().append('rect')
-    .attr('class', 'cell')
-    .attr('width', cellSize)
-    .attr('height', cellSize)
-    .attr('x', function(d,i) { return i * cellSize; })
-    .style('fill', function(d) { return color(d); });
-
 
   ////////////////
   // Line Graph //
@@ -128,25 +172,29 @@ function drawDisplacementGraphics(data) {
 
   // processing data
 
-  // pass in two arrays listing the libraries of interest, current and home
+  // pass in two arrays listing the libraries of interest, home and current
   function constructChartData(array) {
-      var current = array[0],
-          home = array[1];
+    console.log('array:', array);
+      var home = array[0],
+          current = array[1];
       var lines = [];
-      for (var c = 0; c < current.length; c++) {
-        for (var h = 0; h < home.length; h++) {
-          if (current[c] !== home[h]) { lines.push(getLineData(current[c], home[h])); }
+      for (var h = 0; h < home.length; h++) {
+        for (var c = 0; c < current.length; c++) {
+          console.log('checking', home[h], '!==', home[c]);
+          if (home[h] !== current[c]) { lines.push(getLineData(home[h], current[c])); }
         }
       }
+      console.log('lines', lines);
       return lines;
   }
 
-  function getLineData(current, home) {
-    var lineData = { 'current': current, 'home': home, 'history':[] };
-    var currentIndex = libraryCodes.indexOf(current),
-        homeIndex = libraryCodes.indexOf(home);
+  function getLineData(home, current) {
+    console.log('home : current', home, current);
+    var lineData = { 'home': home, 'current': current, 'history':[] };
+    var homeIndex = libraryCodes.indexOf(home),
+        currentIndex = libraryCodes.indexOf(current);
     displacement.map(function(d,i) {
-      var record = { 'date': snapshots[i], 'ratio': d[currentIndex][homeIndex] }
+      var record = { 'date': snapshots[i], 'ratio': d[homeIndex][currentIndex] }
       lineData.history.push(record);
     });
     return lineData;
@@ -195,16 +243,19 @@ function drawDisplacementGraphics(data) {
      .text("Ratio to Equilibrium");
 
   // draw line chart
-  function drawChart(data) {
+  function drawChart(compared) {
+
+    console.log('compared', JSON.stringify(compared));
 
     chart.selectAll('.line').remove();
     chart.selectAll('.label').remove();
     chart.selectAll('.regline').remove();
     d3.selectAll('.caption').text('');
 
-    if(data[0].length !== 0 && data[1].length !== 0) {
+    if(compared[0].length !== 0 && compared[1].length !== 0) {
 
-      var chartData = constructChartData(data);
+      var chartData = constructChartData(compared);
+      console.log('DEBUG', chartData);
 
       var values = chartData.map(function(pair) {
         return pair.history.map(function(d) {
@@ -212,6 +263,7 @@ function drawDisplacementGraphics(data) {
           return [time, d.ratio];
         });
       });
+      console.log('values', values);
       var emptyAvgValues = [];
       for (var i = 0; i < values[0].length; i++) {
         emptyAvgValues.push([[],[]])
@@ -236,7 +288,7 @@ function drawDisplacementGraphics(data) {
 
       var caption1 = '';
       var halfLife = (Math.round((Math.log(0.5)/reg.equation[1]) / (1000 * 60 * 60 * 24 * 365.25) * 100) / 100);
-      caption1 += comparisons[1].join(', ') + ' books in ' + comparisons[0].join(', ') + ' become half as understocked every ' + halfLife + ' years.';
+      caption1 += comparisons[0].join(', ') + ' books in ' + comparisons[1].join(', ') + ' become half as understocked every ' + halfLife + ' years.';
       var caption2 = '';
       caption2 += 'After 5 years, these books will be ' + Math.round((100 * (1 - (1 * Math.pow(0.5, (5 / halfLife))))) * 100) / 100 + '% distributed.';
       d3.select('#lineGraphCaption1').text(caption1);
@@ -269,35 +321,36 @@ function drawDisplacementGraphics(data) {
   // Libraries comparisons selectors //
   /////////////////////////////////////
 
+  // Interested in 1) home libraries and 2) current libraries
   var comparisons = [[],[]];
 
-  d3.select('#currentAllLibrariesSelector').on('click', function() {
+  d3.select('#homeAllLibrariesSelector').on('click', function() {
     if (comparisons[0].length === libraryCodes.length) {
-      d3.select('#currentCheckboxes').selectAll('input').property('checked', false);
+      d3.select('#homeCheckboxes').selectAll('input').property('checked', false);
       comparisons[0] = [];
     } else {
-      d3.select('#currentCheckboxes').selectAll('input').property('checked', true);
+      d3.select('#homeCheckboxes').selectAll('input').property('checked', true);
       comparisons[0] = libraryCodes.slice();
     }
     drawChart(comparisons)
   })
-  d3.select('#currentCheckboxes').selectAll('input').on('change', function() {
+  d3.select('#homeCheckboxes').selectAll('input').on('change', function() {
     var valIndex = comparisons[0].indexOf(this.value);
-    if (valIndex < 0) { comparisons[0].push(this.value); } else { comparisons[0].splice(valIndex, valIndex + 1); }
+    if (valIndex < 0) { comparisons[0].push(this.value); } else { comparisons[1].splice(valIndex, valIndex + 1); }
     drawChart(comparisons);
   });
 
-  d3.select('#homeAllLibrariesSelector').on('click', function() {
+  d3.select('#currentAllLibrariesSelector').on('click', function() {
     if (comparisons[1].length === libraryCodes.length) {
-      d3.select('#homeCheckboxes').selectAll('input').property('checked', false);
+      d3.select('#currentCheckboxes').selectAll('input').property('checked', false);
       comparisons[1] = [];
     } else {
-      d3.select('#homeCheckboxes').selectAll('input').property('checked', true);
+      d3.select('#currentCheckboxes').selectAll('input').property('checked', true);
       comparisons[1] = libraryCodes.slice();
     }
     drawChart(comparisons)
   })
-  d3.select('#homeCheckboxes').selectAll('input').on('change', function() {
+  d3.select('#currentCheckboxes').selectAll('input').on('change', function() {
     var valIndex = comparisons[1].indexOf(this.value);
     if (valIndex < 0) { comparisons[1].push(this.value); } else { comparisons[1].splice(valIndex, valIndex + 1); }
     drawChart(comparisons);

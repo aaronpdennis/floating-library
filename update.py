@@ -29,8 +29,10 @@ def process_snapshot(filename):
 
     filepath = 'excel-spreadsheets/' + filename
 
+    # Establish which spreadsheet column corresponds with which piece of information
     column_number = {'ID':5, 'Title':1, 'Call_Number':2, 'Pub_Year':0, 'Home_Loc':8}
 
+    # List of all the current libraries in the floating library system (by their two letter codes)
     libraries = ['AA','AB','BR','BK','BD','DE','DS','FE','MK','HB','HN','LV','MA','NK','SL','SV','WB','WS','YK']
 
     with open('data/classifications.json') as lcc_file:
@@ -98,6 +100,7 @@ def process_snapshot(filename):
 
                 sheet = workbook.sheet_by_name(library_sheet)
 
+                # Current library is defined by the name of the sheet being parsed
                 current_library = library_sheet.upper()
                 print('Reading ' + current_library + ' data...')
 
@@ -105,7 +108,7 @@ def process_snapshot(filename):
 
                     total += 1
 
-                    # modify home
+                    # Home library is defined by the Home Loc column in the spreadsheet
                     home = str(sheet.cell(i,column_number['Home_Loc']).value).encode('utf-8')
 
                     # modify call number
@@ -116,6 +119,7 @@ def process_snapshot(filename):
                     if space_index >= 0:
                         call_number_shortened = call_number_shortened[:space_index]
 
+                    # Home library is defined by the Home Loc column in the spreadsheet
                     home_location = str(sheet.cell(i,column_number['Home_Loc']).value).encode('utf-8')[7:9].upper()
 
                     # modify pub year
@@ -137,6 +141,8 @@ def process_snapshot(filename):
                         if cn_classification != 'unclassified':
 
                             ## start tallying
+
+                            # Matrix is setup with rows (first accessor) as home location and columns (second accessor) as current location
                             displacement_matrix[libraries.index(home_location)][libraries.index(current_library)] += 1
                             call_number_matrix[cn_classification['key']][libraries.index(current_library)] += 1
                             recency_matrix[recencyClass(recency)][libraries.index(current_library)] += 1

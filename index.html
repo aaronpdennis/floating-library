@@ -17,16 +17,25 @@
 </head>
 <body>
 
-  <div id="displacementGraphics">
-    <h2 class='subtitle'>Floating Library Distribution</h2>
-    <div id="lineGraphContainer">
+<div id="container">
+  <div id="displacementGraphics" class='section'>
+    <div class='narrative'>
+      <h2>Floating Library Distribution</h2>
+      <h3>How well mixed are the floating collections?</h3>
       <p>Compare the distribution of floating books from home libraries to current locations.</p>
+    </div>
+    <div class='narrative'>
+      <h4>How understocked are books from certain home libraries in their current library locations?</h4>
+    </div>
+    <div id="lineGraphContainer">
       <div id="homeCheckboxes" class='selectorList'>
+        <p class='label'>Home</p>
         <p class='allLibrariesSelector checkboxContainer'>
           <input id='homeAllLibrariesSelector' type='button' value="All">
         </p>
       </div>
       <div id="currentCheckboxes" class='selectorList'>
+        <p class='label'>Current</p>
         <p class='allLibrariesSelector checkboxContainer'>
           <input type='button' id='currentAllLibrariesSelector' value="All">
         </p>
@@ -38,22 +47,27 @@
         <p id="lineGraphCaption2" class="caption"></p>
       </div>
     </div>
+    <div class='narrative'>
+      <h4>Books from Home Libraries (rows) in Current Libraries (columns)</h4>
+    </div>
     <div id="matrices"></div>
   </div>
 
-  <div class='break'></div>
-
-  <div id="recencyGraphics">
-    <h2 class='subtitle'>Recency of Library Collections</h2>
+  <div id="recencyGraphics" class='section'>
+    <div class='narrative'>
+      <h2>Recency of Library Collections</h2>
+      <h3>Has a floating system caused some libraries to lose their recently published books?</h3>
+    </div>
     <p class='instructions'>Use the slider to move through time.</p>
     <input class='slider' id="recencySlider" type="range" min="0" max="17" step = "1" value="0">
     <div id="recencyBarChart"></div>
   </div>
 
-  <div class='break'></div>
-
-  <div id="callNumberGraphics">
-    <h2 class='subtitle'>Call Numbers</h2>
+  <div id="callNumberGraphics" class='section'>
+    <div class='narrative'>
+      <h2>Call Numbers</h2>
+      <h3>Has a floating system caused a redistribution of books for specific subject areas?</h3>
+    </div>
     <p class='instructions'>Select a call number class from the menu.</p>
     <div id='menu'>
       <div class="selector">
@@ -67,6 +81,7 @@
     <input class='slider' id="cnSlider" type="range" min="0" max="17" step = "1" value="0">
     <div id="callNumberChart"></div>
   </div>
+</div>
 
 <script>
 
