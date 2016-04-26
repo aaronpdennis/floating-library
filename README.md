@@ -42,4 +42,4 @@ python -m SimpleHTTPServer 8000
 
 ```
 
-Once everything is done running, checkout [http://localhost:8000/](http://localhost:8000/). This is a local preview of how the page will look. To host online, place all the contents of the `floating-library` folder, **except for the `excel-spreadsheets`, on a web server.
+Once everything is done running, checkout [http://localhost:8000/](http://localhost:8000/). This is a local preview of how the page will look. To host online, place all the contents of the `floating-library` folder, **except for the `excel-spreadsheets`**, on a web server.
