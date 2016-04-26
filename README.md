@@ -36,7 +36,7 @@ These are the commands you'll run from Terminal. You can copy and paste all of t
 cd ~/Desktop
 git clone https://github.com/aaronpdennis/floating-library.git
 cd floating-library
-cp /Volumes/FLASH_DRIVE/excel-spreadsheets ./excel-spreadsheets
+cp -R /Volumes/FLASH_DRIVE/excel-spreadsheets ./excel-spreadsheets
 python update.py
 python -m SimpleHTTPServer 8000
 
