@@ -73,17 +73,21 @@ body {
   color: #333;
 }
 
+.instructions-panel {
+  float: left;
+  max-width: 50%;
+  padding-left: 25%;
+}
+
 .instructions {
-  padding-left: 20px;
   color: #999;
   font-style: italic;
 }
 
 .slider {
-  width: 30%;
+  width: 100%;
 }
 #menu {
-  padding-left: 40px;
 }
 .menu-button {
   text-align: center;

@@ -92,10 +92,14 @@
       <p>
         The slider allows you to compare recency distributions at different times in the floating collection’s history. See whether the most recent data differs significantly from the earliest recorded snapshots.
       </p>
-      <h4>Changing Recency of Collections (above or below collection-wide average)<br>by Age Class</h4>
+      <h4>Changing Recency of Collections<br>(above or below collection-wide average)<br>by Age Class</h4>
     </div>
-    <p class='instructions'>Use the slider to move through time.</p>
-    <input class='slider' id="recencySlider" type="range" min="0" max="17" step = "1" value="0">
+    <div class='instructions-panel'>
+      <div>
+        <p class='instructions'>Use the slider to move through time. Click on the slider button and use your left and right arrow keys to move back and forth.</p>
+        <input class='slider' id="recencySlider" type="range" min="0" max="17" step = "1" value="0">
+      </div>
+    </div>
     <div id="recencyBarChart"></div>
   </div>
 
@@ -109,19 +113,23 @@
       <p>
         The slider allows you to compare call number distributions at different times in the floating collection’s history. See whether the most recent data differs significantly from the earliest recorded snapshots.
       </p>
-      <h4>Changing Distribution of Call Numbers (above or below collection-wide average)<br>by Current Library</h4>
+      <h4>Changing Distribution of Call Numbers<br>(above or below collection-wide average)<br>by Current Library</h4>
     </div>
-    <p class='instructions'>Select a call number class from the menu.</p>
-    <div id='menu'>
-      <div class="selector">
-        Classification:
-        <select id='classMenu'>
-          <option value="main">Main Classes</option>
-        </select>
+    <div class='instructions-panel'>
+      <p class='instructions'>Select a call number class from the menu.</p>
+      <div id='menu'>
+        <div class="selector">
+          Classification:
+          <select id='classMenu'>
+            <option value="main">Main Classes</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <p class='instructions'>Use the slider to move through time. Click on the slider button and use your left and right arrow keys to move back and forth.</p>
+        <input class='slider' id="cnSlider" type="range" min="0" max="17" step = "1" value="0">
       </div>
     </div>
-    <p class='instructions'>Use the slider to move through time.</p>
-    <input class='slider' id="cnSlider" type="range" min="0" max="17" step = "1" value="0">
     <div id="callNumberChart"></div>
   </div>
 </div>
