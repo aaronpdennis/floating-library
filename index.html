@@ -18,11 +18,40 @@
 <body>
 
 <div id="container">
+  <div id='introduction' class='section'>
+    <div class='narrative'>
+      <h2>Floating Collection Analysis and Visualization</h2>
+      <h3>A research assistantship project by <br>Aaron Dennis, Spring 2016</h3>
+      <p>We have collected monthly snapshots of the floating collection that capture where each “book float” item is located among 19 library locations since August, 2014. With nearly one million individual items in the floating collection, the challenge is deriving insight about general trends and patterns from such a massive amount of information. This page provides a window to the floating book data and is presented here in three sections:</p>
+      <ol>
+        <li>Overall distribution of floating books</li>
+        <li>Changes in collection recency</li>
+        <li>Changes in distribution of call numbers</li>
+      </ol>
+      <p>
+        This page is intended as an objective view into the data collected and makes no value judgement on the workings of the floating library collection. The hope is that these charts are useful to library experts in their efforts to assess and improve the floating library system.
+      </p>
+    </div>
+  </div>
   <div id="displacementGraphics" class='section'>
     <div class='narrative'>
       <h2>Floating Library Distribution</h2>
       <h3>How well mixed are the floating collections?</h3>
-      <p>Compare the distribution of floating books from home libraries to current locations.</p>
+      <p>The main idea of a floating collection is books move freely between library locations and are not automatically recalled to their home, or original, locations. When the floating collection started, all books resided at their home location. As users requested floating books from other libraries, the book float items began to mix. When data for this project began collection in August, 2014, books had been floating since 2011 and all libraries had books on their shelves that were originally from other library locations.
+      </p>
+      <p>
+        Here, the original library location for a book, that library which first added the book to their collection, is referred to as the <em>home location</em> and the library location where the book currently resides at the time of the monthly snapshot is referred to as the <em>current location</em>. As of April, 2016, most books have not floated from their home location, but many have.
+      </p>
+      <p>
+        In our analysis of book float distribution, we can think of the floating collection as a salad. Before tossing our salad, all the ingredients sit in groups in the bowl and none have yet mixed. This was the state of the floating collection in 2011. Some ingredients were in larger quantities. Books from Harrisburg, like the lettuce in the bowl, outnumbered the other ingredients. When we began tossing our salad, and books started to float, the ingredients slowly began to mix. A few pieces of tomato mixed in with the salad and croutons, just as floating books began moving to new locations. At first, the salad isn’t very well mixed, but keep tossing long enough and eventually the salad is entirely mixed and it becomes impossible to make the ingredients any more evenly distributed.
+      </p>
+      <p>
+        This fully tossed salad is the perfect mixture and at a sort of equilibrium. Theoretically, our floating collection is also heading toward that level of equilibrium, where all books occur in other locations at proportional quantities. As you’ll see in the chart, however, some library’s books are mixing faster than others. In April 2016, all libraries are still overstocked with their own books (if the goal is a perfectly distributed collection of books). Some libraries are less overstocked than others. Possible reasons for this variation include differences in demand for their books or abnormal lending practices of some libraries.
+      </p>
+      <p>
+        Regardless of the reason, in this section you’ll find two sets of graphics that show how well the floating books are distributed, assuming a trend toward equilibrium.
+      </p>
+
     </div>
     <div class='narrative'>
       <h4>How understocked are books from certain home libraries in their current library locations?</h4>
@@ -57,7 +86,13 @@
     <div class='narrative'>
       <h2>Recency of Library Collections</h2>
       <h3>Has a floating system caused some libraries to lose their recently published books?</h3>
-      <h4>Changing Recency of Collections</h4>
+      <p>
+        There is reasonable concern that libraries purchasing recently published books are losing these items quickly to other libraries in the floating system and may not see them return to their shelves. The charts below show each library’s collection broken down into six classes based on publication years of books. The bars extend either above or below a black horizontal line based on whether they have more (above) or less (below) books of that recency class than are found in the entire floating collection. If each library’s collection had the same recency characteristics, we would see no variation between libraries. Bars extending upward suggest libraries have abnormally more books of that age than other libraries and bars extending down mean they have abnormally few.
+      </p>
+      <p>
+        The slider allows you to compare recency distributions at different times in the floating collection’s history. See whether the most recent data differs significantly from the earliest recorded snapshots.
+      </p>
+      <h4>Changing Recency of Collections (above or below collection-wide average)</h4>
     </div>
     <p class='instructions'>Use the slider to move through time.</p>
     <input class='slider' id="recencySlider" type="range" min="0" max="17" step = "1" value="0">
@@ -68,7 +103,13 @@
     <div class='narrative'>
       <h2>Call Numbers</h2>
       <h3>Has a floating system caused a redistribution of books for specific subject areas?</h3>
-      <h4>Changing Distribution of Call Numbers</h4>
+      <p>
+        There is a question of whether a floating library system has caused the accumulation of books in certain libraries based on subject material. The charts below provide a view into the data broken down into call number classifications. Trends here may be less obvious that in the graphics above, but you may find some insight for specific classes. Again, the bars extend either above or below a black horizontal line based on whether they have more (above) or less (below) books of that call number class than are typical for the entire floating collection.
+      </p>
+      <p>
+        The slider allows you to compare call number distributions at different times in the floating collection’s history. See whether the most recent data differs significantly from the earliest recorded snapshots.
+      </p>
+      <h4>Changing Distribution of Call Numbers (above or below collection-wide average)</h4>
     </div>
     <p class='instructions'>Select a call number class from the menu.</p>
     <div id='menu'>

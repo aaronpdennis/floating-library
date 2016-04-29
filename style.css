@@ -23,7 +23,7 @@ body {
 }
 
 .narrative > h2 {
-  padding-top: 50px;
+  padding-top: 20px;
   color: #222;
   font-size: 44px;
   font-weight: lighter;
@@ -58,11 +58,19 @@ body {
 
 .narrative > p {
   max-width: 60%;
-  padding-bottom: 50px;
+  padding-bottom: 5px;
   color: #222;
   font-size: 20px;
   line-height: 1.8;
   text-indent: 30px;
+  margin: 5px;
+}
+
+.narrative > ol {
+  font-size: 22px;
+  line-height: 2;
+  font-weight: bolder;
+  color: #333;
 }
 
 .instructions {
