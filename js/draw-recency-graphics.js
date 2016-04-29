@@ -130,15 +130,31 @@ function drawRecencyGraphics(data) {
       .attr('y', height / 2 - 1)
       .attr('x', margin)
       .attr('width', width - 2 * margin - 2)
+      .attr('height', 2);
+
+    rSvg
+      .append('text')
+      .attr('class', 'label')
+      .attr('x', height / 2 - 1)
+      .attr('y', margin)
+      .attr('width', width - 2 * margin - 2)
       .attr('height', 2)
 
     rSvg
       .append('text')
-      .attr('class', 'classLabel label')
-      .attr('x', 2 + margin)
-      .attr('y', 2 + margin)
-      .attr('alignment-baseline', 'hanging')
-      .text(function(d,i) { return libraryCodes[i]; });
+      .attr('class', 'label plusminus')
+      .attr('x', 2)
+      .attr('y', height / 2 - 12)
+      .style('fill', 'green')
+      .text('+');
+
+    rSvg
+      .append('text')
+      .attr('class', 'label plusminus')
+      .attr('x', 2)
+      .attr('y', height / 2 + 12)
+      .style('fill', 'red')
+      .text('-');
 
     rSvg
       .append('text')
@@ -169,7 +185,7 @@ function drawRecencyGraphics(data) {
         return anchor;
       })
       .attr('transform', 'rotate(-90) translate(' + -1 * height / 2 +',' + -1 * height / 2.13 +')')
-      .text(function(d,i) { return categories[i].substring(0,categories[i].length - 5); });
+      .text(function(d,i) { return categories[i] + ' old'; });
 
   }
 

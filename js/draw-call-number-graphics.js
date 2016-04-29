@@ -150,6 +150,22 @@ function drawCallNumberGraphics(data) {
       .attr('width', width - 2 * margin - 2)
       .attr('height', 2)
 
+    cnSvg
+      .append('text')
+      .attr('class', 'label plusminus')
+      .attr('x', 2)
+      .attr('y', height / 2 - 12)
+      .style('fill', 'green')
+      .text('+');
+
+    cnSvg
+      .append('text')
+      .attr('class', 'label plusminus')
+      .attr('x', 2)
+      .attr('y', height / 2 + 12)
+      .style('fill', 'red')
+      .text('-');
+
     cnGroups
       .append('text')
       .attr('class', 'label')
